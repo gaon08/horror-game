@@ -808,7 +808,7 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.m
     return .1 + .9 * proximity * proximity;
   }
   function setupAudio() {
-    if (audio) { audio.context.resume(); return; }
+    if (audio) return;
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     if (!AudioContext) return;
     const context = new AudioContext();
@@ -829,17 +829,34 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.m
     beat.connect(beatGain); beatGain.connect(master); beat.start();
     audio = { context, master, threatGain, beatGain, lastBeat: 0 };
   }
+  function showStartupError(message, error) {
+    console.error(message, error);
+    const errorBox = $("#startup-error");
+    errorBox.textContent = message;
+    errorBox.classList.remove("hidden");
+    $("#start-button").disabled = true;
+  }
   function startGame() {
     if (started && !ended) return;
-    buildWorld();
-    buildActors();
+    try {
+      buildWorld();
+      buildActors();
+    } catch (error) {
+      showStartupError("3D 동굴을 시작하지 못했습니다. 페이지를 새로고침해 다시 시도하세요.", error);
+      return;
+    }
     started = true; paused = false; ended = false; gameTime = 0;
     document.body.classList.add("game-active");
     document.body.classList.remove("game-ended");
     clearHeldInput();
     ui.start.classList.add("hidden"); ui.end.classList.add("hidden"); ui.pause.classList.add("hidden");
     $("#crosshair").classList.add("visible");
-    setupAudio(); audio?.context.resume();
+    try {
+      setupAudio();
+      if (audio) audio.context.resume().catch(error => console.warn("Game audio is unavailable", error));
+    } catch (error) {
+      console.warn("Game audio is unavailable", error);
+    }
     document.querySelectorAll(".key-piece").forEach(piece => piece.classList.remove("found"));
     document.querySelectorAll(".key-join").forEach(join => join.classList.remove("active"));
     document.querySelectorAll(".objective-row").forEach(row => row.classList.remove("done"));
@@ -1498,4 +1515,5 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.m
   }
   resize();
   requestAnimationFrame(frame);
+  window.dispatchEvent(new Event("cave-game-ready"));
 })();

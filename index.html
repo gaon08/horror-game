@@ -69,6 +69,7 @@
               <div class="eyebrow"><span></span> 생존 기록 · 01 · 마지막 목격자</div>
               <h1>삐돌이가 사는<br><em>동굴</em></h1>
               <p>세 조각으로 부서진 열쇠.<br>그리고 어둠 속, 당신을 알아본 하얀 눈.</p>
+              <p id="startup-error" class="startup-error hidden" role="alert" aria-live="assertive"></p>
               <button id="start-button" class="primary-button" type="button">동굴에 들어가기 <span>→</span></button>
               <div class="start-note">이어폰 착용 권장 <span>·</span> 게임 화면에서 마우스 왼쪽 버튼을 누른 채 드래그해 시선을 돌리세요</div>
             </div>
@@ -141,6 +142,49 @@
       </aside>
     </section>
   </main>
-  <script type="module" src="game.js?v=maze-layout-9"></script>
+  <script id="game-module" type="module" src="game.js?v=maze-layout-11"></script>
+  <script>
+    (() => {
+      const startButton = document.querySelector("#start-button");
+      const errorMessage = document.querySelector("#startup-error");
+      const moduleScript = document.querySelector("#game-module");
+      const originalLabel = startButton.innerHTML;
+      let ready = false;
+
+      startButton.disabled = true;
+      startButton.textContent = "게임을 불러오는 중...";
+
+      const showError = (message) => {
+        if (ready) return;
+        errorMessage.textContent = message;
+        errorMessage.classList.remove("hidden");
+        startButton.disabled = true;
+        startButton.textContent = "게임을 불러오지 못했습니다";
+      };
+
+      window.addEventListener("cave-game-ready", () => {
+        ready = true;
+        errorMessage.classList.add("hidden");
+        startButton.disabled = false;
+        startButton.innerHTML = originalLabel;
+      }, { once: true });
+
+      moduleScript.addEventListener("error", () => {
+        const hint = location.protocol === "file:"
+          ? "index.html을 직접 열지 말고 START_GAME.bat을 실행하세요."
+          : "인터넷 연결을 확인하고 페이지를 새로고침하세요.";
+        showError(`게임 모듈을 불러오지 못했습니다. ${hint}`);
+      }, { once: true });
+      window.addEventListener("error", (event) => {
+        showError(`게임 초기화 중 오류가 발생했습니다. ${event.message || "브라우저 콘솔에서 오류를 확인하세요."}`);
+      }, { once: true, capture: true });
+      window.addEventListener("unhandledrejection", () => {
+        showError("게임 모듈을 불러오지 못했습니다. START_GAME.bat으로 실행하고 인터넷 연결을 확인하세요.");
+      }, { once: true });
+      window.setTimeout(() => {
+        showError("게임 로딩이 지연되고 있습니다. 인터넷 연결을 확인한 뒤 새로고침하세요.");
+      }, 15000);
+    })();
+  </script>
 </body>
 </html>
