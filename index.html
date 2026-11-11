@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111313">
+  <title>삐돌이가 사는 동굴</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="game-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="삐돌이가 사는 동굴">
+        <span class="brand-mark" aria-hidden="true">⌁</span>
+        <span><strong>삐돌이가 사는 동굴</strong><small>THE CAVE OF BBIDOL</small></span>
+      </a>
+      <div class="top-actions">
+        <span class="chapter"><i></i> 심층 구역 · 01</span>
+        <button id="sound-toggle" class="icon-button" type="button" aria-label="소리 끄기" title="소리 끄기">♫</button>
+        <button id="pause-button" class="icon-button" type="button" aria-label="일시정지" title="일시정지">Ⅱ</button>
+      </div>
+    </header>
+
+    <section class="layout" aria-label="게임 화면">
+      <div class="play-column">
+        <div class="scene-wrap">
+          <canvas id="scene" aria-label="3D 동굴 탐험 화면"></canvas>
+          <div class="scene-vignette" aria-hidden="true"></div>
+          <div id="crosshair" class="crosshair" aria-hidden="true"><i></i><b></b></div>
+          <div class="scene-top">
+            <div class="location"><span class="location-dot"></span><span id="location-name">입구 동굴</span></div>
+            <div id="alert-pill" class="alert-pill"><span></span><b>안전</b></div>
+          </div>
+          <div id="toast" class="toast" role="status" aria-live="polite"></div>
+          <div id="interact-prompt" class="interact-prompt"><kbd>E</kbd><span>상호작용</span></div>
+          <div class="scene-bottom">
+            <div class="health-wrap" aria-label="생존 상태">
+              <span class="health-icon">♡</span><div class="health-track"><i id="health-bar"></i></div><b id="health-label">건강함</b>
+            </div>
+            <div class="floor-label">B2 <span>—</span> 미탐사 동굴</div>
+            <button id="map-toggle" class="map-toggle" type="button"><span>▦</span> 지도 <kbd>M</kbd></button>
+          </div>
+          <div id="map-overlay" class="map-overlay">
+            <div class="map-heading"><b>동굴 지도</b><span>삐돌이의 위치는 표시되지 않습니다</span></div>
+            <canvas id="map" aria-label="동굴 지도"></canvas>
+          </div>
+          <div id="start-screen" class="screen-card intro-screen">
+            <div class="title-art" aria-hidden="true">
+              <svg viewBox="0 0 520 360" role="presentation">
+                <defs>
+                  <radialGradient id="lizardGlow"><stop stop-color="#b34b3f" stop-opacity=".34"/><stop offset="1" stop-color="#b34b3f" stop-opacity="0"/></radialGradient>
+                  <linearGradient id="lizardSkin" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#e4e0d2"/><stop offset=".55" stop-color="#a8a99d"/><stop offset="1" stop-color="#686d64"/></linearGradient>
+                  <filter id="eyeGlow"><feGaussianBlur stdDeviation="7"/></filter>
+                </defs>
+                <ellipse cx="288" cy="210" rx="205" ry="138" fill="url(#lizardGlow)"/>
+                <path d="M56 263 Q112 221 162 226 Q201 174 290 186 Q340 191 369 156 L425 112 Q455 89 485 101 Q493 108 478 126 L449 157 Q461 166 480 166 L489 180 L471 191 Q451 189 434 180 Q408 219 366 226 Q309 265 220 261 Q163 257 129 288 Q102 304 83 293 Q111 275 119 257 Q91 267 56 263Z" fill="url(#lizardSkin)" stroke="#d4d0c3" stroke-opacity=".44" stroke-width="2"/>
+                <path d="M126 239 L117 211 L140 230 M157 222 L153 192 L177 217 M190 207 L191 179 L211 207 M225 196 L235 167 L246 198 M260 192 L276 164 L282 193 M299 190 L319 166 L320 194 M340 178 L359 156 L355 189 M370 151 L379 127 L390 153 M395 131 L409 111 L413 143" fill="#c6c4b8"/>
+                <path d="M190 252 Q170 286 148 303 L132 307 M293 253 Q314 283 333 291 L350 292 M236 258 Q226 286 220 310 L205 317" fill="none" stroke="#b7b6aa" stroke-width="16" stroke-linecap="round"/>
+                <path d="M143 303 l-16 13 M151 302 l-8 17 M329 291 l18 9 M334 290 l8 17 M217 309 l-15 13 M221 308 l-7 17" stroke="#ddd9cd" stroke-width="5" stroke-linecap="round"/>
+                <ellipse cx="438" cy="123" rx="8" ry="6" fill="#bf5146" filter="url(#eyeGlow)"/>
+                <ellipse cx="438" cy="123" rx="4" ry="3" fill="#db6353"/>
+                <path d="M438 143 Q461 147 479 161 L463 181 Q443 181 425 167Z" fill="#301b1a" stroke="#8c4c43" stroke-width="2"/>
+                <path d="M443 147 L450 159 L456 149 L464 164 L471 158" fill="none" stroke="#eee9dc" stroke-width="4"/>
+                <path d="M432 171 L441 165 L449 174 L457 168 L465 176" fill="none" stroke="#c6c0b3" stroke-width="4"/>
+                <path d="M402 179 l-8 14 M415 184 l-8 17 M428 187 l-6 15 M442 188 l-4 12" stroke="#d7d2c4" stroke-width="4" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="intro-copy">
+              <div class="eyebrow"><span></span> 생존 기록 · 01 · 마지막 목격자</div>
+              <h1>삐돌이가 사는<br><em>동굴</em></h1>
+              <p>세 조각으로 부서진 열쇠.<br>그리고 어둠 속, 당신을 알아본 하얀 눈.</p>
+              <button id="start-button" class="primary-button" type="button">동굴에 들어가기 <span>→</span></button>
+              <div class="start-note">이어폰 착용 권장 <span>·</span> 게임 화면에서 마우스 왼쪽 버튼을 누른 채 드래그해 시선을 돌리세요</div>
+            </div>
+          </div>
+          <div id="end-screen" class="screen-card end-screen hidden">
+            <div id="end-eyebrow" class="eyebrow"><span></span> 생존 기록</div>
+            <h2 id="end-title">동굴을 빠져나왔습니다</h2>
+            <p id="end-copy"></p>
+            <button id="restart-button" class="primary-button" type="button">다시 시작 <span>↻</span></button>
+          </div>
+          <div id="pause-screen" class="pause-screen hidden">
+            <span class="pause-symbol">Ⅱ</span><b>잠시 멈춤</b><span>ESC를 눌러 탐험을 계속하세요</span>
+          </div>
+        </div>
+        <div class="control-strip">
+          <span><kbd>W</kbd> 앞으로 <kbd>S</kbd> 뒤로</span>
+          <span><kbd>A</kbd><kbd>D</kbd> 좌우 이동</span>
+          <span><kbd>좌클릭 유지</kbd> 드래그해 바라보기</span>
+          <span><kbd>SHIFT</kbd> 빠르게 달리기</span>
+          <span><kbd>E</kbd> 줍기 · 조합 · 탈출</span>
+          <span><kbd>Q</kbd> 아이템 사용</span>
+          <span><kbd>1</kbd><kbd>2</kbd> 아이템 선택</span>
+        </div>
+      </div>
+
+      <aside class="sidebar">
+        <section class="panel objective-panel">
+          <div class="panel-heading"><span class="section-icon">✳</span><span>탈출 목표</span><span class="live-tag">진행 중</span></div>
+          <div class="objective-list">
+            <div class="objective-row"><span id="frag-count" class="objective-count">0/3</span><span>열쇠 조각 찾기</span><span class="check-mark">✓</span></div>
+            <div class="objective-row"><span id="craft-count" class="objective-count">○</span><span>작업대에서 열쇠 조합</span><span class="check-mark">✓</span></div>
+            <div class="objective-row"><span id="exit-count" class="objective-count">○</span><span>동굴 출구 열기</span><span class="check-mark">✓</span></div>
+          </div>
+          <div class="objective-hint"><span>!</span><p id="objective-hint">동굴 어딘가에 흩어진 열쇠 조각 3개를 찾으세요.</p></div>
+        </section>
+
+        <section class="panel inventory-panel">
+          <div class="panel-heading"><span class="section-icon">▣</span><span>생존 도구</span><span class="panel-caption">수집한 도구</span></div>
+          <button class="item-card selected" data-item="cricket" type="button">
+            <span class="item-icon cricket-icon">🦗</span><span class="item-info"><b>귀뚜라미 미끼</b><small>던지면 삐돌이가 와서 먹습니다</small></span>
+            <span id="cricket-count" class="item-amount">0</span><kbd>1</kbd>
+          </button>
+          <button class="item-card" data-item="flash" type="button">
+            <span class="item-icon flash-icon">✷</span><span class="item-info"><b>섬광탄</b><small>가까운 삐돌이를 잠시 기절시킵니다</small></span>
+            <span id="flash-count" class="item-amount">0</span><kbd>2</kbd>
+          </button>
+          <div class="inventory-tip"><span>Q</span> 선택한 도구 사용 <i>·</i> 가까이에서 섬광탄 사용</div>
+        </section>
+
+        <section class="panel key-panel">
+          <div class="panel-heading"><span class="section-icon">⌑</span><span>열쇠 조립</span><span id="key-state" class="panel-caption">미완성</span></div>
+          <div class="key-diagram" aria-label="열쇠 조각 조합 상태">
+            <div class="key-piece" data-piece="0"><span>◈</span><small>조각 I</small></div>
+            <i class="key-join"></i>
+            <div class="key-piece" data-piece="1"><span>◈</span><small>조각 II</small></div>
+            <i class="key-join"></i>
+            <div class="key-piece" data-piece="2"><span>◈</span><small>조각 III</small></div>
+          </div>
+          <div id="craft-status" class="craft-status"><span>⌁</span> 조각을 모은 뒤 작업대에서 조합하세요</div>
+        </section>
+
+        <section class="panel signal-panel">
+          <div class="panel-heading"><span class="section-icon">◌</span><span>동굴 신호</span><span class="panel-caption">실시간</span></div>
+          <div class="signal-line"><span class="signal-label">삐돌이</span><div class="signal-track"><i id="threat-bar"></i></div><span id="threat-label">멀리 있음</span></div>
+          <div class="signal-line"><span class="signal-label">소음</span><div class="signal-track noise-track"><i id="noise-bar"></i></div><span id="noise-label">낮음</span></div>
+          <p class="signal-footnote">달리면 발소리가 커져 삐돌이의 주의를 끕니다.</p>
+        </section>
+
+        <div class="sidebar-footer"><span class="status-pip"></span> 저장 없이 플레이 <span>·</span> 탈출까지 약 10분</div>
+      </aside>
+    </section>
+  </main>
+  <script type="module" src="game.js?v=maze-layout-9"></script>
+</body>
+</html>
